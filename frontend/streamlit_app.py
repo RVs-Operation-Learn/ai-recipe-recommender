@@ -231,30 +231,34 @@ if result:
                     st.session_state.meal_plan.setdefault(d, {})[plan_meal] = snapshot
                     st.success("Added to meal plan")
 
-    # -------------------------------
-    # REPLACE CONFIRMATION
-    # -------------------------------
-    if st.session_state.pending_replace:
-        p = st.session_state.pending_replace
+            if st.session_state.pending_replace:
+                p = st.session_state.pending_replace
 
-        st.warning(
-            f"⚠️ Replace planned meal?\n\n"
-            f"{p['meal'].title()} on {p['date']} already has:\n"
-            f"{p['old']['name']}\n\n"
-            f"Replace with:\n"
-            f"{p['new']['name']}"
-        )
+                # Show only for matching date + meal
+                if (
+                    p["date"] == str(plan_date)
+                    and p["meal"] == plan_meal
+                    and p["new"]["name"] == recipe_name
+                ):
 
-        col1, col2 = st.columns(2)
+                    st.warning(
+                        f"⚠️ Replace planned meal?\n\n"
+                        f"{p['meal'].title()} on {p['date']} already has:\n"
+                        f"{p['old']['name']}\n\n"
+                        f"Replace with:\n"
+                        f"{p['new']['name']}"
+                    )
 
-        if col1.button("Cancel"):
-            st.session_state.pending_replace = None
+                    col1, col2 = st.columns(2)
 
-        if col2.button("Confirm Replace"):
-            st.session_state.meal_plan.setdefault(p["date"], {})[p["meal"]] = p["new"]
-            st.session_state.pending_replace = None
-            st.success("Meal replaced successfully")
-            st.rerun()
+                    if col1.button("Cancel", key=f"cancel_replace_{recipe_id}"):
+                        st.session_state.pending_replace = None
+
+                    if col2.button("Confirm Replace", key=f"confirm_replace_{recipe_id}"):
+                        st.session_state.meal_plan.setdefault(p["date"], {})[p["meal"]] = p["new"]
+                        st.session_state.pending_replace = None
+                        st.success("Meal replaced successfully")
+                        st.rerun()
 
 
     # -------------------------------
